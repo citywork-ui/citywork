@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CITY ADMINISTRATION | SECURE TERMINAL</title>
+    <style>
+        :root { --gold: #c5a059; --blue: #0a192f; --red: #ff4d4d; }
+        body { background: var(--blue); color: white; font-family: 'Courier New', monospace; margin: 0; padding: 20px; }
+        .hidden { display: none; }
+        .box { border: 2px solid var(--gold); padding: 20px; background: rgba(0,0,0,0.5); max-width: 600px; margin: auto; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; background: #112240; border: 1px solid var(--gold); color: white; }
+        button { width: 100%; padding: 15px; background: var(--gold); color: var(--blue); border: none; font-weight: bold; cursor: pointer; }
+        .maintenance { background: #1a0000; border: 5px solid var(--red); color: var(--red); padding: 20px; text-align: center; }
+        .highlight { background: var(--gold); color: var(--blue); padding: 2px; }
+        .nocopy { user-select: none; -webkit-user-select: none; }
+    </style>
+</head>
+<body>
+
+    <!-- MAINTENANCE ALERT -->
+    <div id="maintenance-box" class="hidden maintenance">
+        <h2>OFFICIAL ANNOUNCEMENT</h2>
+        <p>Hello everyone, unfortunately, we're having our usual maintenance with our servers. We are unable to give out gains until a few minutes.</p>
+    </div>
+
+    <div id="main-content">
+        <!-- REGISTRATION / LOGIN -->
+        <div id="auth-zone" class="box">
+            <h1>CITY JOB OFFICE</h1>
+            <div id="register-form">
+                <label>ROBLOX USERNAME</label>
+                <input type="text" id="reg-user">
+                <label>ROLE</label>
+                <select id="reg-role">
+                    <option value="News reporter">News Reporter</option>
+                    <option value="Surveillancer">Surveillancer</option>
+                    <option value="Cashier">Cashier</option>
+                </select>
+                <button onclick="register()">REGISTER FOR INTERVIEW</button>
+                <hr>
+                <button style="background:none; color:white;" onclick="showLogin()">ALREADY EMPLOYED? LOG IN</button>
+            </div>
+            <div id="login-form" class="hidden">
+                <input type="text" id="log-user" placeholder="Username">
+                <input type="password" id="log-pass" placeholder="6-Letter Password">
+                <button onclick="login()">LOG IN</button>
+            </div>
+        </div>
+
+        <!-- WORKER DASHBOARD -->
+        <div id="dashboard" class="box hidden">
+            <h2 id="welcome-msg"></h2>
+            <p>Role: <span id="user-role" style="color:var(--gold)"></span></p>
+            <hr>
+
+            <!-- NEWS REPORTER SECTION -->
+            <div id="news-section" class="hidden">
+                <h3 id="timer-display">Next Report: 05:00</h3>
+                <div id="script-zone" class="hidden">
+                    <p class="nocopy">READ THIS SENTENCE-BY-SENTENCE:</p>
+                    <div id="news-text" class="nocopy"></div>
+                    <button id="done-btn" onclick="nextSentence()">SENTENCE DONE</button>
+                </div>
+            </div>
+
+            <!-- SURVEILLANCER SECTION -->
+            <div id="surv-section" class="hidden">
+                <iframe src="https://www.roblox.com" width="100%" height="300px"></iframe>
+                <button onclick="reportCrime()" style="background:var(--red); color:white; margin-top:10px;">REPORT WRONG-DOING</button>
+            </div>
+
+            <!-- CASHIER SECTION -->
+            <div id="cashier-section" class="hidden">
+                <p class="highlight">⚠️ HINT: Use your sword immediately if you see stealers!</p>
+            </div>
+
+            <button onclick="logout()" style="margin-top:20px; background:#333; color:white;">LOG OUT</button>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND = "https://f70b313ac767a0.lhr.life"; // Update this daily
+        let currentUser = JSON.parse(localStorage.getItem('city_user'));
+        let currentScript = [];
+        let scriptIndex = 0;
+
+        // CHECK HOST STATUS
+        async function checkMaintenance() {
+            try {
+                const r = await fetch(`${BACKEND}/ping`);
+                if(!r.ok) throw new Error();
+                document.getElementById('maintenance-box').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+            } catch {
+                document.getElementById('maintenance-box').classList.remove('hidden');
+                document.getElementById('main-content').classList.add('hidden');
+            }
+        }
+        setInterval(checkMaintenance, 5000);
+
+        // AUTH LOGIC
+        function showLogin() { 
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+        }
+
+        async function register() {
+            const user = document.getElementById('reg-user').value;
+            const role = document.getElementById('reg-role').value;
+            await fetch(`${BACKEND}/register`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user, role})
+            });
+            alert("Application sent. Wait for Roblox interview.");
+        }
+
+        async function login() {
+            const user = document.getElementById('log-user').value;
+            const pass = document.getElementById('log-pass').value;
+            const r = await fetch(`${BACKEND}/login`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user, pass})
+            });
+            const data = await r.json();
+            if(data.success) {
+                localStorage.setItem('city_user', JSON.stringify(data.user));
+                location.reload();
+            } else { alert("Invalid Credentials or not hired yet."); }
+        }
+
+        function logout() { localStorage.removeItem('city_user'); location.reload(); }
+
+        // WORK LOGIC
+        if(currentUser) {
+            document.getElementById('auth-zone').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('welcome-msg').innerText = `WELCOME, ${currentUser.user}`;
+            document.getElementById('user-role').innerText = currentUser.role;
+
+            if(currentUser.role === "News reporter") setupNews();
+            if(currentUser.role === "Surveillancer") document.getElementById('surv-section').classList.remove('hidden');
+            if(currentUser.role === "Cashier") document.getElementById('cashier-section').classList.remove('hidden');
+        }
+
+        function setupNews() {
+            document.getElementById('news-section').classList.remove('hidden');
+            let timeLeft = 300; 
+            const timer = setInterval(async () => {
+                timeLeft--;
+                let mins = Math.floor(timeLeft/60);
+                let secs = timeLeft%60;
+                document.getElementById('timer-display').innerText = `Next Report: ${mins}:${secs < 10 ? '0':''}${secs}`;
+                
+                if(timeLeft === 120) alert("REPORT REQUESTED: Please go to the news studio in-game!");
+                if(timeLeft <= 0) {
+                    clearInterval(timer);
+                    startNewsScript();
+                }
+            }, 1000);
+        }
+
+        async function startNewsScript() {
+            const r = await fetch(`${BACKEND}/get-script`);
+            currentScript = await r.json();
+            scriptIndex = 0;
+            document.getElementById('script-zone').classList.remove('hidden');
+            updateScriptUI();
+        }
+
+        function updateScriptUI() {
+            let html = "";
+            currentScript.forEach((s, i) => {
+                html += `<p class="${i === scriptIndex ? 'highlight' : ''}">${s}</p>`;
+            });
+            document.getElementById('news-text').innerHTML = html;
+        }
+
+        async function nextSentence() {
+            scriptIndex++;
+            if(scriptIndex >= currentScript.length) {
+                alert("Report Finished! Processing gains...");
+                await fetch(`${BACKEND}/payout`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({user: currentUser.user, amount: 20})
+                });
+                location.reload();
+            } else { updateScriptUI(); }
+        }
+
+        async function reportCrime() {
+            await fetch(`${BACKEND}/report-crime`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user: currentUser.user})
+            });
+            alert("Crime reported to Administration.");
+        }
+    </script>
+</body>
+</html>
