@@ -104,6 +104,7 @@
             await fetch(`${BACKEND}/register`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
+                "X-Pinggy-No-Screen": "true"
                 body: JSON.stringify({user, role})
             });
             alert("Application sent. Wait for Roblox interview.");
