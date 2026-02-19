@@ -73,7 +73,7 @@
     </div>
 
     <script>
-        const BACKEND = "https://kjdcr-125-167-51-131.a.free.pinggy.link"; // Update this daily
+        const BACKEND = "https://kjdcr-125-167-51-131.a.free.pinggy.link"; 
         let currentUser = JSON.parse(localStorage.getItem('city_user'));
         let currentScript = [];
         let scriptIndex = 0;
@@ -81,7 +81,10 @@
         // CHECK HOST STATUS
         async function checkMaintenance() {
             try {
-                const r = await fetch(`${BACKEND}/ping`);
+                // Pinggy check for GET requests too
+                const r = await fetch(`${BACKEND}/ping`, {
+                    headers: { "X-Pinggy-No-Screen": "true" }
+                });
                 if(!r.ok) throw new Error();
                 document.getElementById('maintenance-box').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
@@ -103,8 +106,10 @@
             const role = document.getElementById('reg-role').value;
             await fetch(`${BACKEND}/register`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                "X-Pinggy-No-Screen": "true"
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Pinggy-No-Screen': 'true'
+                },
                 body: JSON.stringify({user, role})
             });
             alert("Application sent. Wait for Roblox interview.");
@@ -115,7 +120,10 @@
             const pass = document.getElementById('log-pass').value;
             const r = await fetch(`${BACKEND}/login`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Pinggy-No-Screen': 'true'
+                },
                 body: JSON.stringify({user, pass})
             });
             const data = await r.json();
@@ -157,7 +165,9 @@
         }
 
         async function startNewsScript() {
-            const r = await fetch(`${BACKEND}/get-script`);
+            const r = await fetch(`${BACKEND}/get-script`, {
+                headers: { "X-Pinggy-No-Screen": "true" }
+            });
             currentScript = await r.json();
             scriptIndex = 0;
             document.getElementById('script-zone').classList.remove('hidden');
@@ -178,7 +188,10 @@
                 alert("Report Finished! Processing gains...");
                 await fetch(`${BACKEND}/payout`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Pinggy-No-Screen': 'true'
+                    },
                     body: JSON.stringify({user: currentUser.user, amount: 20})
                 });
                 location.reload();
@@ -188,7 +201,10 @@
         async function reportCrime() {
             await fetch(`${BACKEND}/report-crime`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Pinggy-No-Screen': 'true'
+                },
                 body: JSON.stringify({user: currentUser.user})
             });
             alert("Crime reported to Administration.");
