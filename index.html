@@ -81,9 +81,13 @@
         // CHECK HOST STATUS
         async function checkMaintenance() {
             try {
-                // Pinggy check for GET requests too
-                const r = await fetch(`${BACKEND}/ping`);
-                if(!r.ok) throw new Error();
+                const r = await fetch(`${BACKEND}/ping`, { cache: "no-store" });
+        
+                const text = await r.text();
+        
+                // 💀 detect Pinggy HTML instead of API
+                if (text.includes("<html")) throw new Error("Pinggy hijack");
+        
                 document.getElementById('maintenance-box').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
             } catch {
@@ -119,8 +123,8 @@
             const r = await fetch(`${BACKEND}/login`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-Pinggy-No-Screen': 'true'
+                    'content-type': 'application/json',
+                    'x-pinggy-no-screen': 'true'
                 },
                 body: JSON.stringify({user, pass})
             });
@@ -164,7 +168,7 @@
 
         async function startNewsScript() {
             const r = await fetch(`${BACKEND}/get-script`, {
-                headers: { "X-Pinggy-No-Screen": "true" }
+                headers: { "x-pinggy-no-screen": "true" }
             });
             currentScript = await r.json();
             scriptIndex = 0;
@@ -187,8 +191,8 @@
                 await fetch(`${BACKEND}/payout`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'X-Pinggy-No-Screen': 'true'
+                        'content-type': 'application/json',
+                        'x-pinggy-no-screen': 'true'
                     },
                     body: JSON.stringify({user: currentUser.user, amount: 20})
                 });
@@ -200,8 +204,8 @@
             await fetch(`${BACKEND}/report-crime`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-Pinggy-No-Screen': 'true'
+                    'content-type': 'application/json',
+                    'x-pinggy-no-screen': 'true'
                 },
                 body: JSON.stringify({user: currentUser.user})
             });
