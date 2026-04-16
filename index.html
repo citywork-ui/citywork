@@ -105,8 +105,8 @@
             await fetch(`${BACKEND}/register`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-Pinggy-No-Screen': 'true'
+                    'content-type': 'application/json',
+                    'x-pinggy-no-screen': 'true'
                 },
                 body: JSON.stringify({user, role})
             });
