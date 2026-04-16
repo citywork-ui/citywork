@@ -73,7 +73,7 @@
     </div>
 
     <script>
-        const BACKEND = "https://bcghs-2001-448a-10b0-5855-403b-1c71-c9fe-2d66.run.pinggy-free.link"; 
+        const BACKEND = "https://pindd-2001-448a-10b0-5855-403b-1c71-c9fe-2d66.run.pinggy-free.link"; 
         let currentUser = JSON.parse(localStorage.getItem('city_user'));
         let currentScript = [];
         let scriptIndex = 0;
@@ -82,9 +82,7 @@
         async function checkMaintenance() {
             try {
                 // Pinggy check for GET requests too
-                const r = await fetch(`${BACKEND}/ping`, {
-                    headers: { "X-Pinggy-No-Screen": "true" }
-                });
+                const r = await fetch(`${BACKEND}/ping`);
                 if(!r.ok) throw new Error();
                 document.getElementById('maintenance-box').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
