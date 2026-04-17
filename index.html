@@ -73,7 +73,7 @@
     </div>
 
     <script>
-        const BACKEND = "https://fxcvo-125-167-48-169.run.pinggy-free.link"; 
+        const BACKEND = "https://twqqc-125-167-48-169.run.pinggy-free.link"; 
         let currentUser = JSON.parse(localStorage.getItem('city_user'));
         let currentScript = [];
         let scriptIndex = 0;
@@ -110,7 +110,8 @@
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json',
-                    'x-pinggy-no-screen': 'true'
+                    'x-pinggy-no-screen': 'true',
+                    'pinggy-skip-browser-warning': 'apple'
                 },
                 body: JSON.stringify({user, role})
             });
@@ -124,7 +125,8 @@
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json',
-                    'x-pinggy-no-screen': 'true'
+                    'x-pinggy-no-screen': 'true',
+                    'pinggy-skip-browser-warning': 'apple'
                 },
                 body: JSON.stringify({user, pass})
             });
@@ -168,7 +170,7 @@
 
         async function startNewsScript() {
             const r = await fetch(`${BACKEND}/get-script`, {
-                headers: { "x-pinggy-no-screen": "true" }
+                headers: { "x-pinggy-no-screen": "true", 'pinggy-skip-browser-warning': 'apple' }
             });
             currentScript = await r.json();
             scriptIndex = 0;
@@ -192,7 +194,8 @@
                     method: 'POST',
                     headers: {
                         'content-type': 'application/json',
-                        'x-pinggy-no-screen': 'true'
+                        'x-pinggy-no-screen': 'true',
+                        'pinggy-skip-browser-warning': 'apple'
                     },
                     body: JSON.stringify({user: currentUser.user, amount: 20})
                 });
@@ -205,7 +208,8 @@
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json',
-                    'x-pinggy-no-screen': 'true'
+                    'x-pinggy-no-screen': 'true',
+                    'pinggy-skip-browser-warning': 'apple'
                 },
                 body: JSON.stringify({user: currentUser.user})
             });
