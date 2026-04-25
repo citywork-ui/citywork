@@ -73,7 +73,7 @@
     </div>
 
     <script>
-        const BACKEND = "https://iwfmi-2001-448a-10b0-5ddb-1836-64a-4970-64e7.run.pinggy-free.link"; 
+        const BACKEND = "https://oerwv-2001-448a-10b0-5ddb-1836-64a-4970-64e7.run.pinggy-free.link"; 
         let currentUser = JSON.parse(localStorage.getItem('city_user'));
         let currentScript = [];
         let scriptIndex = 0;
@@ -81,16 +81,23 @@
         // CHECK HOST STATUS
         async function checkMaintenance() {
             try {
-                const r = await fetch(`${BACKEND}/ping`, { cache: "no-store" });
+                const r = await fetch(`${BACKEND}/ping`, { 
+                    cache: "no-store",
+                    headers: {
+                        "x-pinggy-no-screen": "true",
+                        "pinggy-skip-browser-warning": "true"
+                    }
+                });
         
                 const text = await r.text();
-        
-                // 💀 detect Pinggy HTML instead of API
+                
+                // If Pinggy still hijacks, it will contain "<html"
                 if (text.includes("<html")) throw new Error("Pinggy hijack");
         
                 document.getElementById('maintenance-box').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
-            } catch {
+            } catch (e) {
+                console.error("Connection error:", e);
                 document.getElementById('maintenance-box').classList.remove('hidden');
                 document.getElementById('main-content').classList.add('hidden');
             }
